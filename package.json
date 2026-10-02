@@ -14,7 +14,8 @@
     "chess.js": "^1.4.0",
     "lucide-react": "^1.50.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "stockfish": "^19.0.0"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.9.0",

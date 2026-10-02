@@ -1,62 +1,87 @@
-# Chess Master — Mobile-First Chess Web App
+# Game Hub — Mobile Arcade & Board Game Collection
 
-A modern, responsive, mobile-first chess web game built with **React**, **TypeScript**, and **Vite**.
+A polished, mobile-first gaming hub featuring three complete, production-ready games built with **React**, **TypeScript**, and **Vite**:
 
-![Chess Master Banner](https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=1200&q=80)
+1. **Chess Master** (PvAI with 8 difficulty tiers & Local 2-Player Pass & Play)
+2. **Klondike Solitaire** (Classic 52-card patience with smart tap-to-move and auto-complete)
+3. **Balloon Pop** (High-energy reflex arcade with combo multipliers and particle effects)
 
-## Features
+![Game Hub Banner](https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80)
 
-- **Mobile-First Experience**: Optimized touch targets, thumb-friendly controls, and seamless tap-to-move and drag-and-drop gameplay.
-- **Complete Chess Rules Engine**: Powered by `chess.js`, supporting castling, en passant, pawn promotion, check, checkmate, stalemate, threefold repetition, and 50-move rule.
-- **Smart AI Opponent**:
-  - **Easy**: Casual mode with natural blunders and relaxed play.
-  - **Medium**: Tactical play utilizing piece-square tables and 2-ply lookahead.
-  - **Hard**: Advanced Minimax search with Alpha-Beta pruning, dynamic move ordering, and endgame king positioning.
-- **Local Two-Player Mode**: Pass & Play with board-flipping options.
-- **Digital Chess Clocks**: Configurable time controls (Bullet 1m, Blitz 3m, Blitz 3+2, Blitz 5m, Rapid 10m, Rapid 15+10, or Casual No Timer).
-- **Move History & Review**: Scrollable SAN notation list with interactive navigation (⏮ ◀ ▶ ⏭) to inspect previous positions on the board.
-- **Captured Pieces & Material Advantage**: Live material count and visual captured pieces tray.
-- **Audio Synthesizer**: Web Audio API sound effects for moves, captures, checks, and game results with no external asset dependencies.
-- **Customizable Themes**: Multiple board themes (Emerald Green, Tournament Wood, Midnight Cyber, Warm Walnut) and full Light/Dark mode support.
-- **Persistence**: All settings (theme, difficulty, audio, orientation) saved to `localStorage`.
+---
 
-## Tech Stack
+## 🎮 The Games
 
-- **Framework**: React 19
-- **Language**: TypeScript
-- **Bundler**: Vite
-- **Chess Logic**: Chess.js
-- **Icons**: Lucide React
-- **Celebration Effects**: Canvas Confetti
+### 1. ♞ Chess Master
+- **8 Distinct AI Difficulty Levels**:
+  - **Beginner (~800 Elo)**: "Learning the game" — Casual play with natural blunders.
+  - **Easy (~1100 Elo)**: "Casual opponent" — Basic piece defense and tactical openings.
+  - **Medium (~1400 Elo)**: "A serious challenge" — Competent positional play with PST tables.
+  - **Hard (~1700 Elo)**: "Strong tactical play" — MVV-LVA move ordering and capture searches.
+  - **Expert (~2000 Elo)**: "Very difficult" — Deep multi-ply search and endgame handling.
+  - **Master (~2300 Elo)**: "Elite-level challenge" — High search depth with pawn structure evaluation.
+  - **Grandmaster (~2600 Elo)**: "Extremely strong engine" — Opening book, deep tree search, and live evaluation bar.
+  - **LEGEND (~2850+ Elo)**: "Maximum available strength" — Highest practical engine strength with Stockfish WASM and deep Alpha-Beta search.
+- **Full Legal Chess Rules**: Castling (O-O and O-O-O), En passant, Pawn promotion dialog, Check, Checkmate, Stalemate, Threefold repetition, and 50-move rule.
+- **Live Evaluation Bar**: Visual gauge reflecting current centipawn balance of power.
+- **Controls & Clocks**: Bullet 1m, Blitz 3m/5m, Rapid 10m/15m, Draw offers, Resignations, Board flip, and SAN move history review.
 
-## Getting Started
+### 2. ♠ Klondike Solitaire
+- **Complete Rules**: 7 tableau columns, 4 foundation piles (Ace to King by suit), stock pile, and waste pile.
+- **Draw 1 & Draw 3**: Configurable draw modes matching tournament and casual styles.
+- **Movement**: Red/black alternating descending tableau placement; King-only empty columns.
+- **Smart Tap & Drag**: Tap any face-up card to automatically send it to foundations or open tableau columns.
+- **Auto-Complete**: Automatically finishes the game once all tableau cards are uncovered.
+- **Win Celebrations**: Victory fanfare and celebratory card cascade animations.
 
-### Prerequisites
+### 3. 🎈 Balloon Pop
+- **Arcade Gameplay**: Rising balloons with varied sizes, speeds, and sine-wave sway.
+- **Combos & Frenzy**: Pop balloons in rapid succession for up to 10x combo multipliers.
+- **Special Balloons**:
+  - *Normal*: Standard points scaled by combo.
+  - *Golden*: High-value bonus target (+500 pts).
+  - *Bomb*: Dangerous skull hazard (-300 pts or lost life).
+  - *Rainbow*: Unlocks temporary 2x Multiplier Frenzy mode.
+  - *Tiny*: High-speed, high-precision challenge.
+- **3 Game Modes**: Classic (lives-based), Time Attack (60-second frenzy), and Endless (Zen mode).
+- **4 Difficulties**: Easy, Normal, Hard, and Insane.
+- **60 FPS Canvas Effects**: Particle burst explosions and floating score popups.
 
-- Node.js (v18+)
-- npm or yarn
+---
 
-### Installation
+## 🛠️ Tech Stack & Engineering
+
+- **Frontend**: React 19, TypeScript
+- **Tooling**: Vite 8
+- **Chess Engine**: `chess.js`, Stockfish WASM/Web Worker + Deep Minimax Alpha-Beta search
+- **Audio Synthesizer**: Unified Web Audio API synthesizer for all 3 games with master volume control
+- **Storage**: `localStorage` persistence for high scores, solitaire stats, and chess preferences
+- **Visuals & Icons**: Lucide React, HTML5 Canvas Particle Engine, Canvas Confetti
+
+---
+
+## 🚀 Running Locally
 
 ```bash
+# Clone the repository
 git clone https://github.com/vedant2004/mobile-chess.git
 cd mobile-chess
+
+# Install dependencies
 npm install
-```
 
-### Development Server
-
-```bash
+# Run development server
 npm run dev
-```
 
-### Production Build
+# Run full test suite
+node tests/test_full_suite.cjs
 
-```bash
+# Production build
 npm run build
-npm run preview
 ```
 
-## License
+---
+
+## 📄 License
 
 MIT

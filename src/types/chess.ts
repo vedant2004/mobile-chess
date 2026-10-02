@@ -5,7 +5,16 @@ export type PieceType = PieceSymbol;
 export type PieceColor = Color;
 
 export type GameMode = 'ai' | 'pvp';
-export type AIDifficulty = 'easy' | 'medium' | 'hard';
+export type AIDifficulty =
+  | 'beginner'
+  | 'easy'
+  | 'medium'
+  | 'hard'
+  | 'expert'
+  | 'master'
+  | 'grandmaster'
+  | 'legend';
+
 export type BoardTheme = 'classic' | 'emerald' | 'wood' | 'midnight';
 
 export interface TimeControl {
@@ -18,7 +27,7 @@ export interface TimeControl {
 export interface PlayerStats {
   color: PieceColor;
   name: string;
-  timeRemaining: number; // in milliseconds
+  timeRemaining: number;
   capturedPieces: PieceType[];
   materialScore: number;
 }
@@ -30,7 +39,8 @@ export type GameEndReason =
   | 'insufficient_material'
   | 'fifty_moves'
   | 'timeout'
-  | 'resignation';
+  | 'resignation'
+  | 'agreement';
 
 export interface GameResult {
   winner: PieceColor | 'draw';
@@ -48,6 +58,18 @@ export interface MoveRecord {
   promotion?: PieceType;
   fenBefore: string;
   fenAfter: string;
+}
+
+export interface DifficultyConfig {
+  id: AIDifficulty;
+  name: string;
+  tagline: string;
+  elo: number;
+  depth: number;
+  stockfishSkill: number;
+  thinkingTimeMs: number;
+  description: string;
+  badgeClass: string;
 }
 
 export interface AppSettings {

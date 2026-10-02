@@ -1,4 +1,10 @@
-import type { TimeControl, AppSettings, BoardTheme } from '../types/chess';
+import type {
+  TimeControl,
+  AppSettings,
+  BoardTheme,
+  DifficultyConfig,
+} from '../types/chess';
+import type { BalloonDifficulty } from '../types/balloon';
 
 export const PIECE_VALUES: Record<string, number> = {
   p: 100,
@@ -53,6 +59,97 @@ export const BOARD_THEMES: Record<
   },
 };
 
+export const CHESS_DIFFICULTIES: DifficultyConfig[] = [
+  {
+    id: 'beginner',
+    name: 'Beginner',
+    tagline: 'Learning the game',
+    elo: 800,
+    depth: 1,
+    stockfishSkill: 0,
+    thinkingTimeMs: 300,
+    description: 'Makes casual moves and occasional blunders. Great for new players.',
+    badgeClass: 'bg-emerald-950 text-emerald-300 border-emerald-700',
+  },
+  {
+    id: 'easy',
+    name: 'Easy',
+    tagline: 'Casual opponent',
+    elo: 1100,
+    depth: 2,
+    stockfishSkill: 3,
+    thinkingTimeMs: 500,
+    description: 'Noticeable tactical errors with basic piece defense.',
+    badgeClass: 'bg-teal-950 text-teal-300 border-teal-700',
+  },
+  {
+    id: 'medium',
+    name: 'Medium',
+    tagline: 'A serious challenge',
+    elo: 1400,
+    depth: 3,
+    stockfishSkill: 6,
+    thinkingTimeMs: 800,
+    description: 'Competent tactical play. Capitalizes on obvious mistakes.',
+    badgeClass: 'bg-cyan-950 text-cyan-300 border-cyan-700',
+  },
+  {
+    id: 'hard',
+    name: 'Hard',
+    tagline: 'Strong tactical play',
+    elo: 1700,
+    depth: 4,
+    stockfishSkill: 10,
+    thinkingTimeMs: 1200,
+    description: 'Searches captures and forcing lines. Tough positional awareness.',
+    badgeClass: 'bg-blue-950 text-blue-300 border-blue-700',
+  },
+  {
+    id: 'expert',
+    name: 'Expert',
+    tagline: 'Very difficult',
+    elo: 2000,
+    depth: 5,
+    stockfishSkill: 14,
+    thinkingTimeMs: 1800,
+    description: 'Multi-ply tactical calculation and solid endgame play.',
+    badgeClass: 'bg-indigo-950 text-indigo-300 border-indigo-700',
+  },
+  {
+    id: 'master',
+    name: 'Master',
+    tagline: 'Elite-level challenge',
+    elo: 2300,
+    depth: 6,
+    stockfishSkill: 17,
+    thinkingTimeMs: 2500,
+    description: 'Deep search depth, pawn structure evaluation, and relentless pressure.',
+    badgeClass: 'bg-purple-950 text-purple-300 border-purple-700',
+  },
+  {
+    id: 'grandmaster',
+    name: 'Grandmaster',
+    tagline: 'Extremely strong engine',
+    elo: 2600,
+    depth: 8,
+    stockfishSkill: 19,
+    thinkingTimeMs: 3500,
+    description: 'Near-flawless tactical search with deep opening knowledge and endgame tablebases.',
+    badgeClass: 'bg-rose-950 text-rose-300 border-rose-700',
+  },
+  {
+    id: 'legend',
+    name: 'LEGEND',
+    tagline: 'Maximum available strength',
+    elo: 2850,
+    depth: 12,
+    stockfishSkill: 20,
+    thinkingTimeMs: 5000,
+    description: 'Maximum practical browser engine depth. Zero deliberate blunders. Plays for the win at all costs.',
+    badgeClass: 'bg-amber-950 text-amber-300 border-amber-500 shadow-amber-500/20 shadow-md',
+  },
+];
+
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
   soundEnabled: true,
@@ -66,8 +163,57 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showLegalMoves: true,
 };
 
-// Piece-Square Tables (from White's perspective; rank 8 down to 1)
-// For Black, the row index is mirrored: 7 - r
+// Balloon Pop Difficulty Settings
+export const BALLOON_DIFFICULTIES: Record<
+  BalloonDifficulty,
+  { name: string; lives: number; speedMin: number; speedMax: number; spawnIntervalMs: number; bombChance: number }
+> = {
+  easy: {
+    name: 'Easy',
+    lives: 5,
+    speedMin: 18,
+    speedMax: 28,
+    spawnIntervalMs: 850,
+    bombChance: 0.05,
+  },
+  normal: {
+    name: 'Normal',
+    lives: 3,
+    speedMin: 24,
+    speedMax: 38,
+    spawnIntervalMs: 650,
+    bombChance: 0.1,
+  },
+  hard: {
+    name: 'Hard',
+    lives: 3,
+    speedMin: 32,
+    speedMax: 50,
+    spawnIntervalMs: 480,
+    bombChance: 0.15,
+  },
+  insane: {
+    name: 'Insane',
+    lives: 2,
+    speedMin: 42,
+    speedMax: 68,
+    spawnIntervalMs: 340,
+    bombChance: 0.22,
+  },
+};
+
+export const BALLOON_COLORS = [
+  '#ef4444', // Red
+  '#3b82f6', // Blue
+  '#10b981', // Emerald
+  '#f59e0b', // Amber
+  '#8b5cf6', // Violet
+  '#ec4899', // Pink
+  '#06b6d4', // Cyan
+  '#84cc16', // Lime
+];
+
+// Piece-Square Tables (White's perspective)
 export const PST = {
   p: [
     [0, 0, 0, 0, 0, 0, 0, 0],

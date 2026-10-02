@@ -9,7 +9,7 @@ import type {
 } from '../types/chess';
 import { DEFAULT_SETTINGS, PIECE_VALUES, TIME_CONTROLS } from '../logic/constants';
 import { soundManager } from '../logic/audio';
-import { computeAIMove } from '../logic/ai';
+import { computeAIMove, evaluateBoard } from '../logic/ai';
 import confetti from 'canvas-confetti';
 
 const SETTINGS_STORAGE_KEY = 'grandmaster_chess_settings_v1';
@@ -58,6 +58,7 @@ export function useChessGame() {
   const [isAIThinking, setIsAIThinking] = useState<boolean>(false);
   const [pendingPromotion, setPendingPromotion] = useState<{ from: Square; to: Square } | null>(null);
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
+  const [drawDeclinedMessage, setDrawDeclinedMessage] = useState<string | null>(null);
 
   // Clocks
   const getTimeControlConfig = useCallback(() => {
@@ -94,7 +95,7 @@ export function useChessGame() {
 
   // Update check and game over status
   const evaluateGameEnd = useCallback(
-    (reasonOverride?: 'timeout' | 'resignation', resignedPlayer?: PieceColor): GameResult | null => {
+    (reasonOverride?: 'timeout' | 'resignation' | 'agreement', resignedPlayer?: PieceColor): GameResult | null => {
       const chess = chessRef.current;
 
       if (reasonOverride === 'timeout') {
@@ -118,6 +119,17 @@ export function useChessGame() {
         };
         setGameResult(res);
         soundManager.playGameEnd(winner === settings.playerColor);
+        return res;
+      }
+
+      if (reasonOverride === 'agreement') {
+        const res: GameResult = {
+          winner: 'draw',
+          reason: 'agreement',
+          message: 'Game drawn by mutual agreement.',
+        };
+        setGameResult(res);
+        soundManager.playGameEnd(false);
         return res;
       }
 
@@ -484,6 +496,26 @@ export function useChessGame() {
     [settings.gameMode, settings.playerColor, turn, evaluateGameEnd]
   );
 
+  // Offer Draw
+  const offerDraw = useCallback(() => {
+    if (gameResult) return;
+    if (settings.gameMode === 'pvp') {
+      evaluateGameEnd('agreement');
+      return;
+    }
+
+    const currentScore = evaluateBoard(chessRef.current);
+    const aiColor = settings.playerColor === 'w' ? 'b' : 'w';
+    const aiAdvantage = aiColor === 'w' ? currentScore : -currentScore;
+
+    if (aiAdvantage > 150) {
+      setDrawDeclinedMessage('AI declined the draw offer. It considers its position advantageous.');
+      setTimeout(() => setDrawDeclinedMessage(null), 3500);
+    } else {
+      evaluateGameEnd('agreement');
+    }
+  }, [gameResult, settings.gameMode, settings.playerColor, evaluateGameEnd]);
+
   // History Navigation
   const navigateHistory = useCallback(
     (target: 'first' | 'prev' | 'next' | 'last' | number) => {
@@ -656,6 +688,9 @@ export function useChessGame() {
     restartGame,
     startNewGame,
     resignGame,
+    offerDraw,
+    drawDeclinedMessage,
+    evalScore: evaluateBoard(chessRef.current),
     navigateHistory,
     updateSettings,
   };
