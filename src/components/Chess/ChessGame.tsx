@@ -36,8 +36,9 @@ export const ChessGame: React.FC<ChessGameProps> = ({ onBackToHub }) => {
     materialAdvantage,
     evalScore,
     drawDeclinedMessage,
+    captureSquares,
+    invalidSquare,
     handleSquareClick,
-    handlePieceDrop,
     handlePromotionSelect,
     cancelPromotion,
     undoMove,
@@ -191,6 +192,17 @@ export const ChessGame: React.FC<ChessGameProps> = ({ onBackToHub }) => {
               materialAdvantage={materialAdvantage[topColor]}
             />
 
+            {/* Instruction banner until first move is made */}
+            {moveHistory.length === 0 && !isGameOver && (
+              <div
+                id="chess-instruction-banner"
+                className="w-full max-w-[460px] md:max-w-[540px] px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 shadow-sm animate-pulse select-none text-center"
+              >
+                <span className="text-base">💡</span>
+                <span>Tap a piece, then tap where you want to move</span>
+              </div>
+            )}
+
             {/* Chessboard */}
             <div className="w-full flex justify-center py-1">
               <Chessboard
@@ -198,13 +210,14 @@ export const ChessGame: React.FC<ChessGameProps> = ({ onBackToHub }) => {
                 isFlipped={boardFlipped}
                 selectedSquare={selectedSquare}
                 legalMoves={legalMoves}
+                captureSquares={captureSquares}
+                invalidSquare={invalidSquare}
                 lastMove={lastMove}
                 checkSquare={checkSquare}
                 boardTheme={settings.boardTheme}
                 showCoordinates={settings.showCoordinates}
                 turn={turn}
                 onSquareClick={handleSquareClick}
-                onDrop={handlePieceDrop}
               />
             </div>
 

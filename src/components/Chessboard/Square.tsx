@@ -8,7 +8,8 @@ interface SquareProps {
   isLight: boolean;
   isSelected: boolean;
   isLegalMove: boolean;
-  hasEnemyPiece: boolean;
+  isCapture: boolean;
+  isInvalid?: boolean;
   isLastMove: boolean;
   isInCheck: boolean;
   showCoordinates: boolean;
@@ -21,7 +22,6 @@ interface SquareProps {
     lastMove: string;
   };
   onClick: (square: SquareType) => void;
-  onPointerDown: (e: React.PointerEvent, square: SquareType) => void;
 }
 
 export const Square: React.FC<SquareProps> = React.memo(({
@@ -30,7 +30,8 @@ export const Square: React.FC<SquareProps> = React.memo(({
   isLight,
   isSelected,
   isLegalMove,
-  hasEnemyPiece,
+  isCapture,
+  isInvalid = false,
   isLastMove,
   isInCheck,
   showCoordinates,
@@ -38,23 +39,26 @@ export const Square: React.FC<SquareProps> = React.memo(({
   rankLabel,
   themeColors,
   onClick,
-  onPointerDown,
 }) => {
   const bg = isLight ? themeColors.lightSquare : themeColors.darkSquare;
 
   return (
-    <div
+    <button
+      type="button"
       id={`square-${square}`}
       data-square={square}
-      className={`relative flex items-center justify-center select-none cursor-pointer transition-colors duration-150 square-box ${
+      aria-label={`${square} ${piece ? `${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}` : 'empty'}`}
+      className={`relative flex items-center justify-center select-none cursor-pointer transition-colors duration-150 p-0 m-0 border-0 outline-none focus:outline-none appearance-none square-box w-full h-full ${
         isInCheck ? 'king-in-check' : ''
-      }`}
+      } ${isInvalid ? 'animate-wobble ring-4 ring-rose-500/80 bg-rose-500/25 z-30' : ''}`}
       style={{
         backgroundColor: bg,
-        touchAction: 'none',
+        touchAction: 'manipulation',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        userSelect: 'none',
       }}
       onClick={() => onClick(square)}
-      onPointerDown={(e) => onPointerDown(e, square)}
     >
       {/* Last move highlight */}
       {isLastMove && (
@@ -66,7 +70,7 @@ export const Square: React.FC<SquareProps> = React.memo(({
 
       {/* Selected square highlight */}
       {isSelected && (
-        <div className="absolute inset-0 pointer-events-none bg-amber-400/40 ring-4 ring-amber-400/80 ring-inset z-10" />
+        <div className="absolute inset-0 pointer-events-none bg-amber-400/35 ring-4 ring-amber-400 ring-inset shadow-[inset_0_0_18px_rgba(251,191,36,0.45)] z-10 animate-pulse" />
       )}
 
       {/* King in check highlight */}
@@ -102,25 +106,37 @@ export const Square: React.FC<SquareProps> = React.memo(({
         </span>
       )}
 
-      {/* Legal Move Hint */}
-      {isLegalMove && (
+      {/* Legal Move Dot (Empty Square) */}
+      {isLegalMove && !isCapture && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          {hasEnemyPiece ? (
-            // Capture target ring
-            <div className="w-full h-full border-4 md:border-[5px] border-emerald-500/80 rounded-full scale-[0.88] animate-ping-once" />
-          ) : (
-            // Move dot
-            <div className="w-3.5 h-3.5 md:w-5 md:h-5 bg-emerald-700/60 dark:bg-emerald-400/60 rounded-full shadow-sm" />
-          )}
+          <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-emerald-500/80 dark:bg-emerald-400/85 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] ring-2 ring-emerald-300/40" />
         </div>
       )}
 
-      {/* Piece */}
+      {/* Legal Move Capture Ring (Enemy Piece or En Passant) */}
+      {isLegalMove && isCapture && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <div className="w-[88%] h-[88%] rounded-full border-4 md:border-[5px] border-rose-500/90 bg-rose-500/20 shadow-[0_0_14px_rgba(244,63,94,0.55)] animate-pulse flex items-center justify-center">
+            {!piece && (
+              <div className="w-3 h-3 bg-rose-500 rounded-full shadow-sm" />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Chess Piece */}
       {piece && (
-        <div className="w-[84%] h-[84%] flex items-center justify-center z-10 transition-transform active:scale-95">
+        <div
+          className={`w-[85%] h-[85%] flex items-center justify-center z-10 pointer-events-none select-none transition-all duration-150 ${
+            isSelected
+              ? 'scale-110 -translate-y-1 drop-shadow-[0_8px_14px_rgba(0,0,0,0.65)]'
+              : 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]'
+          }`}
+        >
           <ChessPiece type={piece.type} color={piece.color} />
         </div>
       )}
-    </div>
+    </button>
   );
 });
+Square.displayName = 'Square';

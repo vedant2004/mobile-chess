@@ -50,6 +50,9 @@ export function useChessGame() {
   const [turn, setTurn] = useState<PieceColor>('w');
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
+  const [captureSquares, setCaptureSquares] = useState<Square[]>([]);
+  const [invalidSquare, setInvalidSquare] = useState<Square | null>(null);
+  const invalidSquareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null);
   const [inCheck, setInCheck] = useState<boolean>(false);
   const [checkSquare, setCheckSquare] = useState<Square | null>(null);
@@ -282,6 +285,8 @@ export function useChessGame() {
         setHistoryIndex(-1); // Live position
         setSelectedSquare(null);
         setLegalMoves([]);
+        setCaptureSquares([]);
+        setInvalidSquare(null);
         setPendingPromotion(null);
 
         syncState({ from: moveResult.from as Square, to: moveResult.to as Square });
@@ -293,7 +298,7 @@ export function useChessGame() {
     [getTimeControlConfig, syncState]
   );
 
-  // Handle square tap/click
+  // Handle square tap/click (Tap-to-Select and Tap-to-Move)
   const handleSquareClick = useCallback(
     (square: Square) => {
       if (gameResult) return;
@@ -306,22 +311,30 @@ export function useChessGame() {
 
       // If a square is already selected
       if (selectedSquare) {
-        // If clicking the same square, deselect
+        // 7. If the player taps the currently selected piece again, deselect it.
         if (selectedSquare === square) {
           setSelectedSquare(null);
           setLegalMoves([]);
+          setCaptureSquares([]);
+          setInvalidSquare(null);
           return;
         }
 
-        // If clicking another friendly piece, switch selection
+        // 6. If the player taps another friendly piece instead, switch the selection to that piece and show its legal moves.
         if (clickedPiece && clickedPiece.color === turn) {
           setSelectedSquare(square);
           const moves = chess.moves({ square, verbose: true });
           setLegalMoves(moves.map((m) => m.to as Square));
+          setCaptureSquares(
+            moves
+              .filter((m) => Boolean(m.captured || m.flags.includes('c') || m.flags.includes('e')))
+              .map((m) => m.to as Square)
+          );
+          setInvalidSquare(null);
           return;
         }
 
-        // If clicked square is a legal move
+        // 4, 5, 9. If the player taps one of the highlighted legal squares (or captures enemy piece)
         if (legalMoves.includes(square)) {
           const selectedPiece = chess.get(selectedSquare);
           // Check for pawn promotion
@@ -333,22 +346,40 @@ export function useChessGame() {
             return;
           }
 
-          // Normal move
+          // Normal move or capture
           executeMove({ from: selectedSquare, to: square });
           return;
         }
 
-        // Clicked an invalid square, deselect
-        setSelectedSquare(null);
-        setLegalMoves([]);
+        // 8. If the player taps an illegal square, do nothing or provide subtle feedback.
+        if (invalidSquareTimeoutRef.current) {
+          clearTimeout(invalidSquareTimeoutRef.current);
+        }
+        setInvalidSquare(square);
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          try {
+            navigator.vibrate(35);
+          } catch {
+            // Ignore
+          }
+        }
+        invalidSquareTimeoutRef.current = setTimeout(() => {
+          setInvalidSquare(null);
+        }, 300);
         return;
       }
 
-      // No square currently selected: select if piece belongs to active turn
+      // 1, 2, 3. No square currently selected: player taps a friendly piece to select and see legal moves
       if (clickedPiece && clickedPiece.color === turn) {
         setSelectedSquare(square);
         const moves = chess.moves({ square, verbose: true });
         setLegalMoves(moves.map((m) => m.to as Square));
+        setCaptureSquares(
+          moves
+            .filter((m) => Boolean(m.captured || m.flags.includes('c') || m.flags.includes('e')))
+            .map((m) => m.to as Square)
+        );
+        setInvalidSquare(null);
       }
     },
     [
@@ -419,6 +450,8 @@ export function useChessGame() {
     setPendingPromotion(null);
     setSelectedSquare(null);
     setLegalMoves([]);
+    setCaptureSquares([]);
+    setInvalidSquare(null);
   }, []);
 
   // Undo Move
@@ -447,6 +480,8 @@ export function useChessGame() {
     setGameResult(null);
     setSelectedSquare(null);
     setLegalMoves([]);
+    setCaptureSquares([]);
+    setInvalidSquare(null);
     setHistoryIndex(-1);
 
     const history = chess.history({ verbose: true });
@@ -460,6 +495,8 @@ export function useChessGame() {
     chessRef.current = new Chess();
     setSelectedSquare(null);
     setLegalMoves([]);
+    setCaptureSquares([]);
+    setInvalidSquare(null);
     setLastMove(null);
     setInCheck(false);
     setCheckSquare(null);
@@ -667,6 +704,8 @@ export function useChessGame() {
     turn,
     selectedSquare,
     legalMoves,
+    captureSquares,
+    invalidSquare,
     lastMove,
     inCheck,
     checkSquare,
